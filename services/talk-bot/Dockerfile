@@ -5,7 +5,7 @@ WORKDIR /app
 ENV PYTHONUNBUFFERED=1 \
 	HEADLESS=1 \
 	POLL_INTERVAL_SEC=10 \
-	NOTES_FOLDER=/Talk transcripts
+	NOTES_FOLDER="/Talk transcripts"
 
 COPY requirements.txt pyproject.toml ./
 COPY talk_bot ./talk_bot
