@@ -1,0 +1,38 @@
+{
+  "name": "whiteboardai",
+  "version": "1.0.0",
+  "license": "AGPL-3.0-or-later",
+  "type": "module",
+  "scripts": {
+    "build": "vite build",
+    "dev": "vite --mode development build",
+    "lint": "eslint src",
+    "stylelint": "stylelint src/**/*.vue src/**/*.scss src/**/*.css",
+    "watch": "vite --mode development build --watch"
+  },
+  "browserslist": [
+    "extends @nextcloud/browserslist-config"
+  ],
+  "dependencies": {
+    "@nextcloud/axios": "^2.5.1",
+    "@nextcloud/dialogs": "^7.4.1",
+    "@nextcloud/initial-state": "^2.2.0",
+    "@nextcloud/router": "^3.0.1",
+    "@nextcloud/vue": "^9.6.0",
+    "vue": "^3.5.32"
+  },
+  "devDependencies": {
+    "@nextcloud/browserslist-config": "^3.1.2",
+    "@nextcloud/eslint-config": "^8.4.2",
+    "@nextcloud/stylelint-config": "^3.1.1",
+    "@nextcloud/vite-config": "^2.5.2",
+    "@vue/tsconfig": "^0.9.1",
+    "typescript": "^5.9.3",
+    "vite": "^7.3.2"
+  },
+  "packageManager": "pnpm@10.33.0",
+  "engines": {
+    "node": "^24.0.0",
+    "pnpm": "^10.0.0"
+  }
+}

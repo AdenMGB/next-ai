@@ -1,0 +1,4 @@
+services/talk-bot/.pytest_cache/
+services/talk-bot/**/__pycache__/
+services/talk-bot/*.egg-info/
+services/talk-bot/.venv/

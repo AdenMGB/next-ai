@@ -1,0 +1,27 @@
+# Merge with your Nextcloud compose, e.g.:
+#   docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml up -d
+#
+# Create a dedicated Nextcloud user (e.g. talkbot) with an app password,
+# then add that user to each Talk conversation you want transcribed.
+
+services:
+  whiteboardai-talk-bot:
+    image: ghcr.io/adenmgb/whiteboardai-talk-bot:latest
+    build:
+      context: ./services/talk-bot
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    shm_size: "2gb"
+    environment:
+      NEXTCLOUD_URL: ${NEXTCLOUD_URL:-https://cloud.example.com}
+      BOT_USER: ${BOT_USER:-talkbot}
+      BOT_PASSWORD: ${BOT_PASSWORD:?set BOT_PASSWORD to the Talk bot app password}
+      OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY}
+      OPENROUTER_MODEL: ${OPENROUTER_MODEL:-openai/gpt-4o-mini}
+      OPENROUTER_TRANSCRIBE_MODEL: ${OPENROUTER_TRANSCRIBE_MODEL:-openai/whisper-1}
+      NOTES_FOLDER: ${NOTES_FOLDER:-/Talk transcripts}
+      POLL_INTERVAL_SEC: ${POLL_INTERVAL_SEC:-10}
+      HEADLESS: "1"
+    # Uncomment if Nextcloud is on the same compose network and use an internal URL:
+    # networks:
+    #   - nextcloud_network

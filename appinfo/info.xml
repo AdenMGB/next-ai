@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<info xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+	  xsi:noNamespaceSchemaLocation="https://apps.nextcloud.com/schema/apps/info.xsd">
+	<id>whiteboardai</id>
+	<name>White Board A I</name>
+	<summary>AI generator for Nextcloud Whiteboard via OpenRouter (shared admin API key).</summary>
+	<description><![CDATA[Adds a floating AI panel to the official Whiteboard app. Admins configure one shared OpenRouter API key; users generate or edit Excalidraw drawings with live canvas context.
+
+Requires the **whiteboard** app.]]></description>
+	<version>1.0.0</version>
+	<licence>AGPL-3.0-or-later</licence>
+	<author mail="lindsaya542@gmail.com" homepage="https://adenmgb.com">Aden Lindsay</author>
+	<namespace>WhiteBoardAI</namespace>
+	<category>ai</category>
+	<bugs>https://github.com/adenmgb</bugs>
+	<dependencies>
+		<nextcloud min-version="31" max-version="33"/>
+	</dependencies>
+	<settings>
+		<admin>OCA\WhiteBoardAI\Settings\Admin</admin>
+		<admin-section>OCA\WhiteBoardAI\Settings\AdminSection</admin-section>
+	</settings>
+	<navigations>
+		<navigation>
+			<id>whiteboardai</id>
+			<name>White Board A I</name>
+			<route>whiteboardai.page.index</route>
+			<icon>app.svg</icon>
+			<type>link</type>
+		</navigation>
+	</navigations>
+</info>

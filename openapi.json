@@ -1,0 +1,365 @@
+{
+    "openapi": "3.0.3",
+    "info": {
+        "title": "whiteboardai",
+        "version": "1.0.0",
+        "description": "Integrate with the Whiteboard App to use an AI to generate excalidraw drawings.",
+        "license": {
+            "name": "AGPL-3.0-or-later"
+        }
+    },
+    "components": {
+        "securitySchemes": {
+            "basic_auth": {
+                "type": "http",
+                "scheme": "basic"
+            },
+            "bearer_auth": {
+                "type": "http",
+                "scheme": "bearer"
+            }
+        },
+        "schemas": {
+            "OCSMeta": {
+                "type": "object",
+                "required": [
+                    "status",
+                    "statuscode"
+                ],
+                "properties": {
+                    "status": {
+                        "type": "string"
+                    },
+                    "statuscode": {
+                        "type": "integer"
+                    },
+                    "message": {
+                        "type": "string"
+                    },
+                    "totalitems": {
+                        "type": "string"
+                    },
+                    "itemsperpage": {
+                        "type": "string"
+                    }
+                }
+            },
+            "PublicStatus": {
+                "type": "object",
+                "required": [
+                    "configured",
+                    "model",
+                    "maxElements"
+                ],
+                "properties": {
+                    "configured": {
+                        "type": "boolean"
+                    },
+                    "model": {
+                        "type": "string"
+                    },
+                    "maxElements": {
+                        "type": "integer"
+                    }
+                }
+            },
+            "GenerateResponse": {
+                "type": "object",
+                "required": [
+                    "mode",
+                    "clipboard"
+                ],
+                "properties": {
+                    "mode": {
+                        "type": "string",
+                        "enum": [
+                            "append",
+                            "replace"
+                        ]
+                    },
+                    "clipboard": {
+                        "type": "object",
+                        "required": [
+                            "type",
+                            "elements"
+                        ],
+                        "properties": {
+                            "type": {
+                                "type": "string"
+                            },
+                            "elements": {
+                                "type": "array",
+                                "items": {
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "paths": {
+        "/ocs/v2.php/apps/whiteboardai/api": {
+            "get": {
+                "operationId": "api-index",
+                "summary": "Public status for clients",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/PublicStatus"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ocs/v2.php/apps/whiteboardai/api/status": {
+            "get": {
+                "operationId": "settings-status",
+                "summary": "Public status for the AI panel (no secrets)",
+                "tags": [
+                    "settings"
+                ],
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Status returned",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/PublicStatus"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ocs/v2.php/apps/whiteboardai/api/generate": {
+            "post": {
+                "operationId": "api-generate",
+                "summary": "Generate or edit Excalidraw elements via OpenRouter",
+                "tags": [
+                    "api"
+                ],
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "requestBody": {
+                    "required": true,
+                    "content": {
+                        "application/json": {
+                            "schema": {
+                                "type": "object",
+                                "required": [
+                                    "prompt"
+                                ],
+                                "properties": {
+                                    "prompt": {
+                                        "type": "string"
+                                    },
+                                    "fileId": {
+                                        "type": "integer"
+                                    },
+                                    "modeHint": {
+                                        "type": "string",
+                                        "enum": [
+                                            "append",
+                                            "replace"
+                                        ]
+                                    },
+                                    "scene": {
+                                        "type": "object",
+                                        "properties": {
+                                            "elements": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "object"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    }
+                },
+                "responses": {
+                    "200": {
+                        "description": "Generation succeeded",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "object",
+                                    "required": [
+                                        "ocs"
+                                    ],
+                                    "properties": {
+                                        "ocs": {
+                                            "type": "object",
+                                            "required": [
+                                                "meta",
+                                                "data"
+                                            ],
+                                            "properties": {
+                                                "meta": {
+                                                    "$ref": "#/components/schemas/OCSMeta"
+                                                },
+                                                "data": {
+                                                    "$ref": "#/components/schemas/GenerateResponse"
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Invalid request"
+                    },
+                    "429": {
+                        "description": "Rate limited"
+                    },
+                    "503": {
+                        "description": "OpenRouter not configured or upstream failure"
+                    }
+                }
+            }
+        },
+        "/ocs/v2.php/apps/whiteboardai/api/settings": {
+            "put": {
+                "operationId": "settings-update",
+                "summary": "Update admin OpenRouter settings",
+                "tags": [
+                    "settings"
+                ],
+                "security": [
+                    {
+                        "bearer_auth": []
+                    },
+                    {
+                        "basic_auth": []
+                    }
+                ],
+                "parameters": [
+                    {
+                        "name": "OCS-APIRequest",
+                        "in": "header",
+                        "required": true,
+                        "schema": {
+                            "type": "boolean",
+                            "default": true
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Settings saved"
+                    }
+                }
+            }
+        }
+    }
+}
