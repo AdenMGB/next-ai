@@ -197,22 +197,36 @@ Chromium needs enough shared memory — compose already sets `shm_size: "2gb"`.
 
 Workflow: [`.github/workflows/talk-bot-image.yml`](.github/workflows/talk-bot-image.yml)
 
-On push to `main` (when `services/talk-bot/**` changes) or tag `talk-bot-v*`:
+On push to `main` (when `services/talk-bot/**` changes), tag `talk-bot-v*`, or **workflow_dispatch**:
 
-- Builds `services/talk-bot/Dockerfile`  
-- Pushes to `ghcr.io/<repository_owner>/whiteboardai-talk-bot`
+- Builds `services/talk-bot/Dockerfile` **natively** on:
+  - `ubuntu-24.04` → `linux/amd64`
+  - `ubuntu-24.04-arm` → `linux/arm64` (Ampere A1 / Oracle ARM)
+- Merges both into one multi-arch manifest on GHCR:
+  `ghcr.io/<repository_owner>/whiteboardai-talk-bot`
 
-After the first successful run:
+After the first successful multi-arch run, Ampere hosts can pull without a local build:
 
 ```bash
 docker pull ghcr.io/<owner>/whiteboardai-talk-bot:latest
+docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml up -d whiteboardai-talk-bot
 ```
+
+Confirm both platforms are present:
+
+```bash
+docker buildx imagetools inspect ghcr.io/<owner>/whiteboardai-talk-bot:latest
+```
+
+You should see `linux/amd64` and `linux/arm64` under Platforms.
 
 If the package is private, log in:
 
 ```bash
 echo $GITHUB_TOKEN | docker login ghcr.io -u USERNAME --password-stdin
 ```
+
+**Note:** GitHub-hosted ARM runners must be available for the repo/org. Public repos on GitHub.com include them; if ARM jobs queue forever, check org Actions runner settings or fall back to building on the Ampere host (Part 2 Option B).
 
 ---
 
@@ -229,14 +243,14 @@ docker exec -u www-data <nc> php occ maintenance:repair
 
 ### Talk bot only
 
-If you use GHCR (x86_64 runners):
+Multi-arch GHCR image (amd64 + arm64):
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml pull
 docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml up -d whiteboardai-talk-bot
 ```
 
-On Ampere A1 / ARM, rebuild locally after updating `services/talk-bot/`:
+If you prefer building on the Ampere host itself:
 
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml build --no-cache whiteboardai-talk-bot
@@ -260,7 +274,7 @@ docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml up -d whiteb
 | OOM / killed during STT | Lower to `WHISPER_MODEL=tiny` or free RAM from other containers |
 | DOCX missing | WebDAV permissions for bot user; folder `/Talk transcripts` |
 | Chromium crash | Increase `shm_size`; don’t drop `--disable-dev-shm-usage` |
-| Wrong arch image | Rebuild on the Ampere host; don’t pull an amd64-only GHCR image |
+| Wrong arch image | Pull after multi-arch CI finishes, or rebuild on the Ampere host; `imagetools inspect` should list `linux/arm64` |
 
 ---
 

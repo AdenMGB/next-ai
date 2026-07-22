@@ -5,9 +5,8 @@
 # then add that user to each Talk conversation you want transcribed.
 #
 # Transcription defaults to local faster-whisper (WHISPER_MODEL=small).
-# On Ampere A1 / ARM, build on the server:
-#   docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml build whiteboardai-talk-bot
-
+# GHCR image is multi-arch (linux/amd64 + linux/arm64) via ubuntu-24.04-arm CI.
+# On Ampere A1 you can pull :latest, or build on the server if needed.
 services:
   whiteboardai-talk-bot:
     image: ghcr.io/adenmgb/whiteboardai-talk-bot:latest
