@@ -18,6 +18,11 @@ services:
       BOT_PASSWORD: ${BOT_PASSWORD:?set BOT_PASSWORD to the Talk bot app password}
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY}
       OPENROUTER_MODEL: ${OPENROUTER_MODEL:-openai/gpt-4o-mini}
+      # Transcription defaults to local faster-whisper (small). Set openrouter to use cloud STT.
+      TRANSCRIBE_BACKEND: ${TRANSCRIBE_BACKEND:-local}
+      WHISPER_MODEL: ${WHISPER_MODEL:-small}
+      WHISPER_DEVICE: ${WHISPER_DEVICE:-cpu}
+      WHISPER_COMPUTE_TYPE: ${WHISPER_COMPUTE_TYPE:-int8}
       OPENROUTER_TRANSCRIBE_MODEL: ${OPENROUTER_TRANSCRIBE_MODEL:-openai/whisper-1}
       NOTES_FOLDER: ${NOTES_FOLDER:-/Talk transcripts}
       POLL_INTERVAL_SEC: ${POLL_INTERVAL_SEC:-10}

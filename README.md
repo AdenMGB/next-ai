@@ -14,7 +14,7 @@ One shared OpenRouter API key is configured by an admin and used by all whiteboa
 
 ### Talk transcription bot (Docker)
 - Dedicated bot user joins active Talk calls via Playwright/Chromium
-- Captures remote WebRTC audio, transcribes with OpenRouter, summarizes with your chat model
+- Captures remote WebRTC audio, **transcribes locally with Whisper `small`** (CPU), summarizes via OpenRouter
 - Uploads a `.docx` (transcript + AI summary) to **`/Talk transcripts/`** via WebDAV
 
 ## Requirements
@@ -63,10 +63,12 @@ BOT_USER=talkbot
 BOT_PASSWORD=xxxx-xxxx-xxxx-xxxx
 OPENROUTER_API_KEY=sk-or-v1-...
 OPENROUTER_MODEL=openai/gpt-4o-mini
-OPENROUTER_TRANSCRIBE_MODEL=openai/whisper-1
+TRANSCRIBE_BACKEND=local
+WHISPER_MODEL=small
 NOTES_FOLDER=/Talk transcripts
 ```
 
+Set `TRANSCRIBE_BACKEND=openrouter` if you prefer cloud STT instead of local Whisper.
 Image (after GitHub Actions runs on `main`):
 
 `ghcr.io/<your-github-user-or-org>/whiteboardai-talk-bot:latest`
@@ -77,7 +79,7 @@ Local build:
 docker build -t whiteboardai-talk-bot ./services/talk-bot
 ```
 
-The bot needs outbound HTTPS to your Nextcloud URL and to `openrouter.ai`. Use `shm_size: 2gb` (already in compose) for Chromium.
+The bot needs outbound HTTPS to your Nextcloud URL and to `openrouter.ai` (for summaries). Use `shm_size: 2gb` (already in compose) for Chromium. On Ampere A1 / ARM, build the image on the server so you get `linux/arm64`.
 
 ## Development
 

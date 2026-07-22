@@ -94,7 +94,7 @@ docker exec -u www-data <nextcloud-container> php occ config:app:set whiteboarda
 
 ## Part 2 — Talk transcription bot (Docker)
 
-The bot is a **separate container**. It logs in as a Nextcloud user, joins active Talk calls, transcribes with OpenRouter, and uploads a `.docx` to **`/Talk transcripts/`**.
+The bot is a **separate container**. It logs in as a Nextcloud user, joins active Talk calls, **transcribes locally with Whisper `small`** (CPU), summarizes via OpenRouter, and uploads a `.docx` to **`/Talk transcripts/`**.
 
 ### 1. Create a bot user
 
@@ -137,10 +137,18 @@ BOT_USER=talkbot
 BOT_PASSWORD=xxxx-xxxx-xxxx-xxxx
 OPENROUTER_API_KEY=sk-or-v1-...
 OPENROUTER_MODEL=openai/gpt-4o-mini
-OPENROUTER_TRANSCRIBE_MODEL=openai/whisper-1
+TRANSCRIBE_BACKEND=local
+WHISPER_MODEL=small
+WHISPER_DEVICE=cpu
+WHISPER_COMPUTE_TYPE=int8
 NOTES_FOLDER=/Talk transcripts
 POLL_INTERVAL_SEC=10
 ```
+
+- **Transcription** defaults to local `faster-whisper` (`WHISPER_MODEL=small`). Audio stays on your server.
+- **Summaries** still use OpenRouter (`OPENROUTER_API_KEY` + `OPENROUTER_MODEL`).
+- To use cloud STT instead: `TRANSCRIBE_BACKEND=openrouter` and optionally `OPENROUTER_TRANSCRIBE_MODEL=openai/whisper-1`.
+- On Ampere A1 / ARM, build the image on the server (`docker build ...`) so you get `linux/arm64`.
 
 `NEXTCLOUD_URL` must be reachable **from inside the bot container** (public HTTPS URL, or internal Docker DNS like `http://nextcloud`).
 
