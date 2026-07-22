@@ -270,6 +270,9 @@ docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml up -d whiteb
 | Bot never joins | `talkbot` in the room; call actually started; logs show poll; URL reachable |
 | Bot can’t login | App password (not account password); SSO may need extra setup |
 | Empty transcript | Mic/WebRTC capture limited without HPB; check bot logs for Whisper / STT errors |
+| Bot opens call but never joins | Look for `Clicked join via` in logs; `join-attempt-*.png` in container tmp; ensure `talkbot` is a room participant; rebuild image after joiner fix |
+| Join button disabled | Conversation session not ready — bot now POSTs `/participants/active`; wait for green Join |
+| Rejoins forever / empty DOCX every few seconds | Fixed: session now lasts until API reports call ended, and retries Join |
 | Slow after call ends | Expected on 4-core CPU with Whisper `small`; wait for DOCX |
 | OOM / killed during STT | Lower to `WHISPER_MODEL=tiny` or free RAM from other containers |
 | DOCX missing | WebDAV permissions for bot user; folder `/Talk transcripts` |

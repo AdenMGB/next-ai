@@ -54,7 +54,9 @@ class TalkMonitor:
 		return active
 
 	def call_url(self, token: str) -> str:
-		return f"{self.settings.nextcloud_url}/call/{token}"
+		from .join_helpers import build_call_url
+
+		return build_call_url(self.settings.nextcloud_url, token, direct=True)
 
 	def participants(self, token: str) -> list[dict[str, Any]]:
 		url = (
