@@ -3,6 +3,10 @@
 #
 # Create a dedicated Nextcloud user (e.g. talkbot) with an app password,
 # then add that user to each Talk conversation you want transcribed.
+#
+# Transcription defaults to local faster-whisper (WHISPER_MODEL=small).
+# On Ampere A1 / ARM, build on the server:
+#   docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml build whiteboardai-talk-bot
 
 services:
   whiteboardai-talk-bot:
@@ -16,9 +20,10 @@ services:
       NEXTCLOUD_URL: ${NEXTCLOUD_URL:-https://cloud.example.com}
       BOT_USER: ${BOT_USER:-talkbot}
       BOT_PASSWORD: ${BOT_PASSWORD:?set BOT_PASSWORD to the Talk bot app password}
+      # Required for DOCX summaries (not used for local STT)
       OPENROUTER_API_KEY: ${OPENROUTER_API_KEY:?set OPENROUTER_API_KEY}
       OPENROUTER_MODEL: ${OPENROUTER_MODEL:-openai/gpt-4o-mini}
-      # Transcription defaults to local faster-whisper (small). Set openrouter to use cloud STT.
+      # local = faster-whisper on CPU (default). openrouter = cloud STT.
       TRANSCRIBE_BACKEND: ${TRANSCRIBE_BACKEND:-local}
       WHISPER_MODEL: ${WHISPER_MODEL:-small}
       WHISPER_DEVICE: ${WHISPER_DEVICE:-cpu}
@@ -27,6 +32,10 @@ services:
       NOTES_FOLDER: ${NOTES_FOLDER:-/Talk transcripts}
       POLL_INTERVAL_SEC: ${POLL_INTERVAL_SEC:-10}
       HEADLESS: "1"
-    # Uncomment if Nextcloud is on the same compose network and use an internal URL:
+    # Uncomment and match your Nextcloud compose network name:
     # networks:
     #   - nextcloud_network
+
+# networks:
+#   nextcloud_network:
+#     external: true

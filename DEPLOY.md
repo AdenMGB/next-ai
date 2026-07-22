@@ -14,7 +14,8 @@ This covers:
 | Nextcloud **31–33** | Matches `appinfo/info.xml` |
 | **whiteboard** app | Official Nextcloud Whiteboard |
 | **spreed** (Talk) | Only needed for the Talk bot |
-| OpenRouter API key | [openrouter.ai](https://openrouter.ai/) |
+| OpenRouter API key | Used for whiteboard AI + Talk **summaries** (not required for local STT) |
+| CPU for Talk bot | ~4 cores / 8+ GB RAM is enough for Whisper `small` (Ampere A1 OK) |
 | Apps directory mapped into Docker | e.g. `./custom_apps:/var/www/html/custom_apps` |
 
 ---
@@ -112,20 +113,22 @@ ghcr.io/<your-github-username>/whiteboardai-talk-bot:latest
 
 Update `image:` in `docker-compose.talk-bot.yml` if your GitHub owner is not `adenmgb`.
 
-**Option B — build locally on the server:**
+**Option B — build on the server (recommended on Ampere A1 / ARM):**
+
+Unpack the deploy zip (or clone the repo) so `services/talk-bot/` and `docker-compose.talk-bot.yml` are next to your Nextcloud compose, then:
 
 ```bash
-cd /path/to/whiteboardai
+# from the folder that contains docker-compose.talk-bot.yml and services/
+docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml build whiteboardai-talk-bot
+```
+
+Or:
+
+```bash
 docker build -t whiteboardai-talk-bot ./services/talk-bot
 ```
 
-Then set in compose:
-
-```yaml
-image: whiteboardai-talk-bot
-```
-
-(or keep `build:` as in the shipped compose file).
+First build downloads Whisper `small` into the image (several hundred MB). Prefer building **on the ARM host** so the image is `linux/arm64`.
 
 ### 3. Env file
 
@@ -226,8 +229,17 @@ docker exec -u www-data <nc> php occ maintenance:repair
 
 ### Talk bot only
 
+If you use GHCR (x86_64 runners):
+
 ```bash
 docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml pull
+docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml up -d whiteboardai-talk-bot
+```
+
+On Ampere A1 / ARM, rebuild locally after updating `services/talk-bot/`:
+
+```bash
+docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml build --no-cache whiteboardai-talk-bot
 docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml up -d whiteboardai-talk-bot
 ```
 
@@ -243,9 +255,12 @@ docker compose -f docker-compose.yml -f docker-compose.talk-bot.yml up -d whiteb
 | Paste does nothing | Focus Excalidraw canvas, then Ctrl+V; or use downloaded `.excalidraw` |
 | Bot never joins | `talkbot` in the room; call actually started; logs show poll; URL reachable |
 | Bot can’t login | App password (not account password); SSO may need extra setup |
-| Empty transcript | Mic/WebRTC capture limited without HPB; check bot logs for transcription errors |
+| Empty transcript | Mic/WebRTC capture limited without HPB; check bot logs for Whisper / STT errors |
+| Slow after call ends | Expected on 4-core CPU with Whisper `small`; wait for DOCX |
+| OOM / killed during STT | Lower to `WHISPER_MODEL=tiny` or free RAM from other containers |
 | DOCX missing | WebDAV permissions for bot user; folder `/Talk transcripts` |
 | Chromium crash | Increase `shm_size`; don’t drop `--disable-dev-shm-usage` |
+| Wrong arch image | Rebuild on the Ampere host; don’t pull an amd64-only GHCR image |
 
 ---
 
